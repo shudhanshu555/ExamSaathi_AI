@@ -1,0 +1,7 @@
+{
+  "name": "ExamSaathi",
+  "description": "An AI-powered assistant designed for students to excel in exams with features like voice assistance, structured notes generation, practice tests, and motivation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

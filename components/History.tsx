@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { History as HistoryIcon, Clock, Mic, BookOpen, HelpCircle } from 'lucide-react';
+import { History as HistoryIcon, Clock, Mic, BookOpen, HelpCircle, ChevronLeft } from 'lucide-react';
 import { HistoryItem } from '../types';
 
-const History: React.FC<{ history: HistoryItem[] }> = ({ history }) => {
+const History: React.FC<{ history: HistoryItem[]; onBack: () => void }> = ({ history, onBack }) => {
   const getIcon = (type: HistoryItem['type']) => {
     switch (type) {
       case 'voice': return <Mic size={18} className="text-red-500" />;
@@ -20,6 +20,10 @@ const History: React.FC<{ history: HistoryItem[] }> = ({ history }) => {
 
   return (
     <div className="max-w-4xl mx-auto">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors mb-6">
+        <ChevronLeft size={20} /> Go Back to Dashboard
+      </button>
+
       <div className="flex items-center gap-3 mb-8">
         <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-700">
           <HistoryIcon size={24} className="text-slate-600 dark:text-slate-300" />
@@ -30,7 +34,7 @@ const History: React.FC<{ history: HistoryItem[] }> = ({ history }) => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 animate-in fade-in duration-500">
         {history.length === 0 ? (
           <div className="p-20 text-center">
             <Clock size={48} className="mx-auto mb-4 text-slate-200" />

@@ -93,6 +93,8 @@ const App: React.FC = () => {
     </button>
   );
 
+  const goHome = () => setActiveTab('dashboard');
+
   return (
     <div className={`min-h-screen flex transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       {/* Mobile Menu Overlay */}
@@ -145,7 +147,7 @@ const App: React.FC = () => {
               <p className="text-sm font-semibold">Active Session</p>
             </div>
             <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-              SK
+              ST
             </div>
           </div>
         </header>
@@ -156,7 +158,7 @@ const App: React.FC = () => {
             <div className="space-y-8 animate-in fade-in duration-500">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 lg:p-12 text-white shadow-2xl relative overflow-hidden">
                 <div className="relative z-10">
-                  <h2 className="text-3xl lg:text-4xl font-bold mb-4">Focus on your exams, <br/>Shudhanshu!</h2>
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-4">Focus on your exams, <br/>Student!</h2>
                   <p className="text-blue-100 max-w-md mb-8">ExamSaathi is ready to help you generate notes, practice questions, and solve your doubts with AI.</p>
                   <button 
                     onClick={() => setActiveTab('practice')}
@@ -210,10 +212,10 @@ const App: React.FC = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {notes.slice(0, 4).map(note => (
-                      <div key={note.id} className="p-4 border border-slate-100 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                      <div key={note.id} className="p-4 border border-slate-100 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group" onClick={() => setActiveTab('notes')}>
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-bold text-blue-600 truncate mr-2">{note.title}</h4>
-                          <button onClick={() => deleteNote(note.id)} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Trash2 size={16} />
                           </button>
                         </div>
@@ -227,11 +229,11 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'voice' && <VoiceAssistant addToHistory={addToHistory} />}
-          {activeTab === 'notes' && <NotesGenerator onSave={addNote} savedNotes={notes} onDelete={deleteNote} />}
-          {activeTab === 'practice' && <PracticeZone addToHistory={addToHistory} />}
-          {activeTab === 'history' && <History history={history} />}
-          {activeTab === 'motivation' && <Motivation />}
+          {activeTab === 'voice' && <VoiceAssistant addToHistory={addToHistory} onBack={goHome} />}
+          {activeTab === 'notes' && <NotesGenerator onSave={addNote} savedNotes={notes} onDelete={deleteNote} onBack={goHome} />}
+          {activeTab === 'practice' && <PracticeZone addToHistory={addToHistory} onBack={goHome} />}
+          {activeTab === 'history' && <History history={history} onBack={goHome} />}
+          {activeTab === 'motivation' && <Motivation onBack={goHome} />}
         </div>
 
         <CreatorInfo />

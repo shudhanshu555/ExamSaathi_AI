@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { Zap, Sparkles, Quote, Loader2, RefreshCw } from 'lucide-react';
+import { Zap, Sparkles, Quote, Loader2, RefreshCw, ChevronLeft } from 'lucide-react';
 
-const Motivation: React.FC = () => {
+const Motivation: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [motivation, setMotivation] = useState<{ quote: string; author: string; message: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,9 +31,15 @@ const Motivation: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto h-[70vh] flex items-center justify-center">
+    <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col items-center justify-center">
+      <div className="w-full text-left mb-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors">
+          <ChevronLeft size={20} /> Go Back to Dashboard
+        </button>
+      </div>
+
       {!motivation && !isLoading ? (
-        <div className="text-center space-y-8 max-w-lg">
+        <div className="text-center space-y-8 max-w-lg animate-in zoom-in duration-500">
           <div className="w-24 h-24 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 rounded-full flex items-center justify-center mx-auto animate-bounce shadow-xl shadow-yellow-500/20">
             <Zap size={48} fill="currentColor" />
           </div>

@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { BookOpen, FileText, Save, Trash2, Loader2, Search, FileDown, Sparkles, AlertCircle, Layout } from 'lucide-react';
+import { BookOpen, FileText, Save, Trash2, Loader2, Search, FileDown, Sparkles, AlertCircle, Layout, ChevronLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Note } from '../types';
 
-const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[], onDelete: (id: string) => void }> = ({ onSave, savedNotes, onDelete }) => {
+const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[], onDelete: (id: string) => void, onBack: () => void }> = ({ onSave, savedNotes, onDelete, onBack }) => {
   const [topic, setTopic] = useState('');
   const [length, setLength] = useState<'short' | 'moderate' | 'long'>('short');
   const [university, setUniversity] = useState('MAKAUT');
@@ -61,6 +61,10 @@ const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors mb-2">
+        <ChevronLeft size={20} /> Go Back to Dashboard
+      </button>
+
       <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600">
@@ -162,7 +166,7 @@ const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[
                </div>
                <div className="mt-24 pt-10 border-t border-slate-200 text-xs text-slate-400 flex justify-between font-sans uppercase tracking-widest">
                   <span>Created by ExamSaathi AI • Student Assistant</span>
-                  <span>Shudhanshu Kumar Yadav Edition</span>
+                  <span>Student Edition</span>
                </div>
             </div>
           </div>

@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
-import { HelpCircle, ChevronRight, CheckCircle2, XCircle, Loader2, Sparkles, MessageSquare } from 'lucide-react';
+import { HelpCircle, ChevronRight, CheckCircle2, XCircle, Loader2, Sparkles, MessageSquare, ChevronLeft } from 'lucide-react';
 import { Question } from '../types';
 
-const PracticeZone: React.FC<{ addToHistory: (d: string, t: any) => void }> = ({ addToHistory }) => {
+const PracticeZone: React.FC<{ addToHistory: (d: string, t: any) => void; onBack: () => void }> = ({ addToHistory, onBack }) => {
   const [topic, setTopic] = useState('');
   const [mode, setMode] = useState<'mcq' | 'classic'>('mcq');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -88,8 +88,12 @@ const PracticeZone: React.FC<{ addToHistory: (d: string, t: any) => void }> = ({
 
   return (
     <div className="max-w-4xl mx-auto">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors mb-6">
+        <ChevronLeft size={20} /> Go Back to Dashboard
+      </button>
+
       {questions.length === 0 ? (
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 text-center">
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 text-center animate-in fade-in duration-500">
           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <HelpCircle size={32} />
           </div>
@@ -102,10 +106,10 @@ const PracticeZone: React.FC<{ addToHistory: (d: string, t: any) => void }> = ({
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="What topic do you want to revise?"
-              className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl py-4 px-6 focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
+              className="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-xl py-4 px-6 focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
             />
             
-            <div className="flex gap-4 p-1 bg-slate-50 dark:bg-slate-900 rounded-xl">
+            <div className="flex gap-4 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl">
               <button
                 onClick={() => setMode('mcq')}
                 className={`flex-1 py-3 rounded-lg font-bold transition-all ${mode === 'mcq' ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm' : 'text-slate-400'}`}
@@ -169,7 +173,7 @@ const PracticeZone: React.FC<{ addToHistory: (d: string, t: any) => void }> = ({
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
                   placeholder="Type your answer here..."
-                  className="w-full h-32 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl p-6 focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full h-32 bg-slate-100 dark:bg-slate-900 border-none rounded-2xl p-6 focus:ring-2 focus:ring-blue-500 transition-all"
                 />
                 {!showAnswer && (
                   <button onClick={() => checkAnswer()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">Submit Answer</button>

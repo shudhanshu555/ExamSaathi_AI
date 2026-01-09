@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
-import { Mic, MicOff, Volume2, Loader2, Sparkles, MessageSquare, AlertCircle, RefreshCw, HelpCircle } from 'lucide-react';
+import { Mic, MicOff, Volume2, Loader2, Sparkles, MessageSquare, AlertCircle, RefreshCw, HelpCircle, ChevronLeft } from 'lucide-react';
 import { encode, decode, decodeAudioData, float32ToInt16 } from '../utils/audio';
 
-const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void }> = ({ addToHistory }) => {
+const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBack: () => void }> = ({ addToHistory, onBack }) => {
   const [isActive, setIsActive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
@@ -217,7 +217,7 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void }> = 
         },
         config: {
           responseModalities: [Modality.AUDIO],
-          systemInstruction: 'You are ExamSaathi, a friendly assistant for student Shudhanshu. Help him solve exam doubts quickly. Match his language and style. Keep responses concise and spoken-friendly.',
+          systemInstruction: 'You are ExamSaathi, a friendly assistant for the student. Help solve exam doubts quickly. Match their language and style. Keep responses concise and spoken-friendly.',
           speechConfig: {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } }
           },
@@ -243,6 +243,10 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void }> = 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-colors mb-2">
+        <ChevronLeft size={20} /> Go Back to Dashboard
+      </button>
+
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-700 text-center">
         {error && (
           <div className="mb-6 p-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl text-left animate-in fade-in slide-in-from-top border border-red-100 dark:border-red-900/30">

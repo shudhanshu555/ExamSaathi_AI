@@ -128,7 +128,7 @@ const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[
 
       {generatedNote && (
         <div className="animate-in fade-in slide-in-from-bottom duration-700">
-          <div className="flex justify-center gap-4 mb-8 sticky top-24 z-20">
+          <div className="flex justify-center gap-4 mb-10 sticky top-24 z-20">
             <button 
               onClick={handleSave} 
               className="bg-white dark:bg-slate-800 text-green-600 border-2 border-green-500 px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-green-50 dark:hover:bg-green-900/20 font-bold shadow-xl transition-all"
@@ -145,24 +145,26 @@ const NotesGenerator: React.FC<{ onSave: (note: Note) => void, savedNotes: Note[
           
           <div className="a4-container">
             <div className="a4-paper shadow-2xl rounded-sm border border-slate-200">
-               <div className="prose prose-slate max-w-none prose-headings:text-blue-700 prose-blockquote:border-blue-500 prose-blockquote:bg-slate-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:font-bold">
-                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                    h3: ({node, ...props}) => {
-                        if (props.children?.toString().includes('🎨')) {
-                            return (
-                                <div className="diagram-guide">
-                                    <div className="diagram-guide-title">
-                                        <Layout size={18} /> Diagram & Schematic Blueprint
-                                    </div>
-                                    <h3 className="!mt-0" {...props} />
-                                </div>
-                            )
-                        }
-                        return <h3 {...props} />
-                    }
-                 }}>
-                  {generatedNote}
-                 </ReactMarkdown>
+               <div className="prose prose-slate max-w-none prose-headings:text-blue-700 prose-blockquote:border-blue-500 prose-blockquote:bg-slate-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:font-bold overflow-hidden">
+                 <div className="w-full overflow-x-auto custom-scrollbar">
+                   <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                      h3: ({node, ...props}) => {
+                          if (props.children?.toString().includes('🎨')) {
+                              return (
+                                  <div className="diagram-guide">
+                                      <div className="diagram-guide-title">
+                                          <Layout size={18} /> Diagram & Schematic Blueprint
+                                      </div>
+                                      <h3 className="!mt-0" {...props} />
+                                  </div>
+                              )
+                          }
+                          return <h3 {...props} />
+                      }
+                   }}>
+                    {generatedNote}
+                   </ReactMarkdown>
+                 </div>
                </div>
                <div className="mt-24 pt-10 border-t border-slate-200 text-xs text-slate-400 flex justify-between font-sans uppercase tracking-widest">
                   <span>Created by ExamSaathi AI • Student Assistant</span>

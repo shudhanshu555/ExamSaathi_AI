@@ -18,9 +18,8 @@
         .a4-container {
             width: 100%;
             overflow-x: auto;
-            padding: 20px 0;
-            display: flex;
-            justify-content: center;
+            padding: 20px 10px;
+            display: block; /* Changed from flex to block to prevent clipping */
         }
         
         .a4-paper {
@@ -28,11 +27,14 @@
             min-height: 297mm;
             padding: 20mm 25mm;
             background: white;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             color: #1a202c;
             font-family: 'Lora', serif;
             position: relative;
-            overflow: visible; /* Ensure content is never cut off */
+            margin: 0 auto; /* Center manually */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         .a4-paper h1 { font-family: 'Inter', sans-serif; font-size: 24pt; font-weight: 800; color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; }
@@ -57,6 +59,7 @@
             font-size: 12pt;
             text-align: center;
             color: #1e3a8a;
+            word-break: break-all;
         }
 
         /* Diagram Box Styling */
@@ -80,19 +83,30 @@
             gap: 5pt;
         }
 
-        @media (max-width: 220mm) {
-            .a4-container { padding: 10px; }
+        @media (max-width: 230mm) {
+            .a4-container { padding: 5px; }
             .a4-paper {
                 width: 100%;
+                min-width: 0;
                 min-height: auto;
-                padding: 15mm;
+                padding: 10mm;
+                margin: 0;
+                border-radius: 1rem;
             }
         }
 
         @media print {
             body * { visibility: hidden; }
             .a4-paper, .a4-paper * { visibility: visible; }
-            .a4-paper { position: absolute; left: 0; top: 0; box-shadow: none; width: 100%; padding: 10mm; }
+            .a4-paper { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                box-shadow: none; 
+                width: 100%; 
+                padding: 10mm; 
+                margin: 0;
+            }
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -109,7 +123,9 @@
     "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
     "react-markdown": "https://esm.sh/react-markdown@^9.0.0",
-    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0"
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "vite": "https://esm.sh/vite@^7.3.1"
   }
 }
 </script>

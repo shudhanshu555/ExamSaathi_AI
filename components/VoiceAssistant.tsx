@@ -24,34 +24,30 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
   const stopSession = async () => {
     console.log("Terminating session and releasing resources...");
     
-    // 1. Mark as inactive immediately
     isActiveRef.current = false;
     setIsActive(false);
     setIsConnecting(false);
 
-    // 2. Kill the script processor
     if (scriptProcessorRef.current) {
       scriptProcessorRef.current.onaudioprocess = null;
       try { scriptProcessorRef.current.disconnect(); } catch (e) {}
       scriptProcessorRef.current = null;
     }
 
-    // 3. Disconnect source
     if (sourceNodeRef.current) {
       try { sourceNodeRef.current.disconnect(); } catch (e) {}
       sourceNodeRef.current = null;
     }
 
-    // 4. Close Gemini connection
     if (sessionPromiseRef.current) {
       const currentPromise = sessionPromiseRef.current;
       sessionPromiseRef.current = null;
-      currentPromise.then(session => {
-        try { session.close(); } catch(e) {}
-      }).catch(() => {});
+      try {
+        const session = await currentPromise;
+        if (session) session.close();
+      } catch(e) {}
     }
     
-    // 5. Explicitly stop and release microphone tracks
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => {
         track.stop();
@@ -60,13 +56,11 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
       streamRef.current = null;
     }
 
-    // 6. Clear playback queue
     sourcesRef.current.forEach(source => {
       try { source.stop(); } catch(e) {}
     });
     sourcesRef.current.clear();
 
-    // 7. Close contexts
     const closePromises = [];
     if (inputAudioContextRef.current && inputAudioContextRef.current.state !== 'closed') {
       closePromises.push(inputAudioContextRef.current.close().catch(() => {}));
@@ -83,21 +77,25 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
   };
 
   const startSession = async () => {
-    // Force a complete cleanup before starting
+    // Explicitly await cleanup before starting a new connection
     await stopSession();
+
+    if (!process.env.API_KEY) {
+      setError("System Configuration Error: API Key is missing. Please ensure your environment variable is set up correctly in Vercel.");
+      return;
+    }
 
     setIsConnecting(true);
     setError(null);
     setLastMessage("");
     
     try {
-      // Security context check
       if (!window.isSecureContext) {
-        throw new Error("Microphone access requires a secure connection (HTTPS). Please ensure you are visiting via a secure link.");
+        throw new Error("Microphone access requires a secure connection (HTTPS).");
       }
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Your browser does not support high-quality voice interactions. Please try Chrome, Edge, or Safari.");
+        throw new Error("Your browser does not support high-quality voice interactions.");
       }
 
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -106,22 +104,13 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
       inputAudioContextRef.current = new AudioCtx({ sampleRate: 16000 });
       outputAudioContextRef.current = new AudioCtx({ sampleRate: 24000 });
 
-      // Request microphone with compatibility fallback
       try {
-        console.log("Requesting microphone...");
-        // Use a simpler request first to maximize compatibility across different hardware
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log("Microphone access successful.");
       } catch (err: any) {
-        console.error("Media Error:", err);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          throw new Error("Permission Denied: ExamSaathi needs your microphone to work. Please click the lock/mic icon in your address bar, select 'Allow', and refresh the page.");
-        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-          throw new Error("Hardware Not Found: No microphone detected. Please plug in a microphone or check your device settings.");
-        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-          throw new Error("Hardware Busy: Your microphone is being used by another app. Please close other calls and try again.");
+        if (err.name === 'NotAllowedError') {
+          throw new Error("Microphone Permission Denied. Please allow access and try again.");
         } else {
-          throw new Error(`Microphone Error: ${err.message}. Please check your browser settings.`);
+          throw new Error(`Microphone Access Failed: ${err.message}`);
         }
       }
 
@@ -148,7 +137,6 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
 
             scriptProcessor.onaudioprocess = (e) => {
               if (!isActiveRef.current) return;
-
               const inputData = e.inputBuffer.getChannelData(0);
               const int16Data = float32ToInt16(inputData);
               const pcmData = encode(new Uint8Array(int16Data.buffer));
@@ -204,14 +192,13 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
             }
           },
           onerror: (e: any) => {
-            console.error('Gemini Live Error:', e);
-            if (isActiveRef.current) {
-              setError("AI Network Error: The connection was interrupted. Please check your internet and try again.");
-              stopSession();
-            }
+            console.error('Gemini Live Error Details:', e);
+            // Catch error even if handshake hasn't completed
+            setError("AI Service Error: " + (e.message || "Network issue or invalid API key."));
+            stopSession();
           },
-          onclose: () => {
-            console.log("Connection closed.");
+          onclose: (e: any) => {
+            console.log("Connection closed.", e);
             if (isActiveRef.current) stopSession();
           }
         },
@@ -229,7 +216,7 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
 
     } catch (err: any) {
       console.error("Session failed:", err);
-      setError(err.message || "An unexpected error occurred. Please refresh the page.");
+      setError(err.message || "An unexpected error occurred.");
       setIsConnecting(false);
       await stopSession();
     }
@@ -253,23 +240,15 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
             <div className="flex items-start gap-3">
               <AlertCircle size={24} className="shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-bold mb-1">Action Required</h4>
+                <h4 className="font-bold mb-1">Network / Connection Error</h4>
                 <p className="text-sm leading-relaxed mb-4">{error}</p>
                 <div className="flex flex-wrap gap-3">
                   <button 
                     onClick={startSession} 
                     className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-red-500/20"
                   >
-                    <RefreshCw size={16} /> Try Again
+                    <RefreshCw size={16} /> Try Reconnecting
                   </button>
-                  <a 
-                    href="https://support.google.com/chrome/answer/2693767" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 px-2"
-                  >
-                    <HelpCircle size={16} /> How to fix?
-                  </a>
                 </div>
               </div>
             </div>
@@ -305,7 +284,7 @@ const VoiceAssistant: React.FC<{ addToHistory: (d: string, t: any) => void; onBa
               className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-10 py-5 rounded-2xl font-bold transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20 group"
             >
               {isConnecting ? <Loader2 className="animate-spin" /> : <Sparkles className="group-hover:rotate-12 transition-transform" />}
-              {isConnecting ? "Activating Mic..." : "Start AI Conversation"}
+              {isConnecting ? "Connecting to AI..." : "Start AI Conversation"}
             </button>
           ) : (
             <button
